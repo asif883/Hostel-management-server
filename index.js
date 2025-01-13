@@ -23,6 +23,7 @@ const client = new MongoClient(uri, {
   });
   
    const dailyCostCollection = client.db("Hostel-manager").collection("dailyCost")
+   const utilityCostCollection = client.db("Hostel-manager").collection("utilityCost")
 
   const dbConnect = async()=>{
     try{
@@ -51,6 +52,28 @@ const client = new MongoClient(uri, {
         const id = req.params.id;
         const query = {_id : new ObjectId(id)}
         const result =await dailyCostCollection.deleteOne(query);
+        res.send(result);
+      })
+      
+      //  Utility 
+      app.post('/add-utility-cost', async(req , res)=>{
+            const cost = req.body
+            const result = await utilityCostCollection.insertOne(cost)
+            res.send(result)
+       })    
+      app.get('/utility-cost' , async( req, res )=>{
+           const utilityCost = await utilityCostCollection.find().toArray()
+
+           const totalCost = utilityCost.reduce((total, item) => {
+                const cost = parseFloat(item.cost) || 0;
+                return total + cost;
+            }, 0)
+           res.send({utilityCost, totalCost})
+       })  
+       app.delete('/utility-cost/:id', async(req , res)=>{
+        const id = req.params.id;
+        const query = {_id : new ObjectId(id)}
+        const result =await utilityCostCollection.deleteOne(query);
         res.send(result);
       })
 
