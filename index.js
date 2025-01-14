@@ -24,6 +24,7 @@ const client = new MongoClient(uri, {
   
    const dailyCostCollection = client.db("Hostel-manager").collection("dailyCost")
    const utilityCostCollection = client.db("Hostel-manager").collection("utilityCost")
+   const userCollection = client.db("Hostel-manager").collection("user")
 
   const dbConnect = async()=>{
     try{
@@ -75,6 +76,18 @@ const client = new MongoClient(uri, {
         const query = {_id : new ObjectId(id)}
         const result =await utilityCostCollection.deleteOne(query);
         res.send(result);
+      })
+
+      // user
+      app.post('/add-user' , async ( req , res ) =>{
+        const userData = req.body
+        const result = await userCollection.insertOne(userData)
+        res.send(result)
+      })
+
+      app.get('/users', async (req , res) =>{
+          const users = await userCollection.find().toArray()
+          res.send(users)
       })
 
     }
