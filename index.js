@@ -25,6 +25,7 @@ const client = new MongoClient(uri, {
    const dailyCostCollection = client.db("Hostel-manager").collection("dailyCost")
    const utilityCostCollection = client.db("Hostel-manager").collection("utilityCost")
    const userCollection = client.db("Hostel-manager").collection("user")
+   const dailyMealCollection = client.db("Hostel-manager").collection("Meal")
 
   const dbConnect = async()=>{
     try{
@@ -32,7 +33,7 @@ const client = new MongoClient(uri, {
         console.log('DB Connected');
 
 
-       // Routes
+       // daily cost
        app.post('/add-daily-cost', async(req , res)=>{
             const cost = req.body
             const result = await dailyCostCollection.insertOne(cost)
@@ -89,6 +90,18 @@ const client = new MongoClient(uri, {
           const users = await userCollection.find().toArray()
           res.send(users)
       })
+
+      // daily meal
+      app.post('/add-meal', async ( req , res )=>{
+        const mealData = req.body
+        const result = await dailyMealCollection.insertOne(mealData)
+        res.send(result)
+      })
+      app.get('/daily-meal', async ( req , res )=>{
+        const result = await dailyMealCollection.find().toArray()
+        res.send(result)
+      })
+
 
     }
     catch(err){
