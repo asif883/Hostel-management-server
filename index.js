@@ -26,6 +26,7 @@ const client = new MongoClient(uri, {
    const utilityCostCollection = client.db("Hostel-manager").collection("utilityCost")
    const userCollection = client.db("Hostel-manager").collection("user")
    const dailyMealCollection = client.db("Hostel-manager").collection("Meal")
+   const depositMoneyCollection = client.db("Hostel-manager").collection("Money")
 
   const dbConnect = async()=>{
     try{
@@ -55,6 +56,13 @@ const client = new MongoClient(uri, {
         const query = {_id : new ObjectId(id)}
         const result =await dailyCostCollection.deleteOne(query);
         res.send(result);
+      })
+
+      // delete all cost 
+
+      app.delete('/delete-all-cost' , async (req , res) =>{
+        const deleteAll = await dailyCostCollection.deleteMany()
+        res.send(deleteAll)
       })
       
       //  Utility 
@@ -131,10 +139,8 @@ const client = new MongoClient(uri, {
             console.error("Error fetching meals:", error);
             res.status(500).send({ success: false, message: "Failed to fetch meals" });
         }
-    });
+      });
     
-    
-
       app.delete('/delete-all-meals', async (req, res) => {
         try {
             const result = await dailyMealCollection.deleteMany({});
@@ -143,8 +149,26 @@ const client = new MongoClient(uri, {
             console.error("Error deleting meals:", error);
             res.status(500).send({ success: false, message: "Failed to delete meals" });
         }
-    });
-    
+      });
+
+      // deposit money routes 
+      app.post('/add-money' , async(req, res )=>{
+         const depositMoney = req.body 
+         const result = await depositMoneyCollection.insertOne(depositMoney)
+         res.send(result)
+      })
+
+      app.get('/deposit-money', async(req , res) =>{
+          const result = await depositMoneyCollection.find().toArray()
+          res.send(result)
+      })
+
+      app.delete('/money/:id', async(req , res)=>{
+        const id = req.params.id;
+        const query = {_id : new ObjectId(id)}
+        const result =await depositMoneyCollection.deleteOne(query);
+        res.send(result);
+      })
 
 
     }
