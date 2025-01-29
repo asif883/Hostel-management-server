@@ -97,10 +97,54 @@ const client = new MongoClient(uri, {
         const result = await dailyMealCollection.insertOne(mealData)
         res.send(result)
       })
-      app.get('/daily-meal', async ( req , res )=>{
-        const result = await dailyMealCollection.find().toArray()
-        res.send(result)
-      })
+
+      app.get("/daily-meal", async (req, res) => {
+        try {
+            const meals = await dailyMealCollection.find().toArray();
+    
+            // If meals are not found, return an empty array
+            if (!Array.isArray(meals)) {
+                return res.send({ meals: [], totalMealsPerMember: Array(7).fill(0) });
+            }
+    
+            // Ensure each day has a meals array
+            meals.forEach((day) => {
+                if (!Array.isArray(day.meals)) {
+                    day.meals = Array(7).fill(0);
+                }
+                day.totalMeals = day.meals.reduce((sum, meal) => sum + (meal || 0), 0).toFixed(1);
+            });
+    
+            // Calculate total meals per member
+            const totalMealsPerMember = Array(7).fill(0);
+            meals.forEach((day) => {
+                day.meals.forEach((meal, index) => {
+                    totalMealsPerMember[index] += meal || 0;
+                });
+            });
+    
+            res.send({
+                meals,
+                totalMealsPerMember: totalMealsPerMember.map((m) => Number(m.toFixed(1))),
+            });
+        } catch (error) {
+            console.error("Error fetching meals:", error);
+            res.status(500).send({ success: false, message: "Failed to fetch meals" });
+        }
+    });
+    
+    
+
+      app.delete('/delete-all-meals', async (req, res) => {
+        try {
+            const result = await dailyMealCollection.deleteMany({});
+            res.send({ success: true, message: "All meals deleted successfully", deletedCount: result.deletedCount });
+        } catch (error) {
+            console.error("Error deleting meals:", error);
+            res.status(500).send({ success: false, message: "Failed to delete meals" });
+        }
+    });
+    
 
 
     }
