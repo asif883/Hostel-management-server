@@ -65,7 +65,6 @@ const client = new MongoClient(uri, {
       })
 
       // delete all cost 
-
       app.delete('/delete-all-cost' , async (req , res) =>{
         const deleteAll = await dailyCostCollection.deleteMany()
         res.send(deleteAll)
@@ -181,6 +180,29 @@ const client = new MongoClient(uri, {
         const result =await depositMoneyCollection.deleteOne(query);
         res.send(result);
       })
+
+      app.patch('/update/:id', async (req, res) => {
+        try {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateMoney = req.body;
+            
+            const update = {
+                $set: {
+                    name: updateMoney.name,
+                    date: updateMoney.date,
+                    amount: updateMoney.amount
+                }
+            };
+    
+            const result = await depositMoneyCollection.updateOne(filter, update, options);
+            res.send(result);
+        } catch (error) {
+            res.status(500).send({ message: 'Server error', error });
+        }
+    });
+    
 
 
     }
