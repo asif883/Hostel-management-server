@@ -9,7 +9,13 @@ const port = process.env.PORT || 3000
 
 
 // middleware 
-app.use(cors())
+app.use(cors({
+  origin:[ 
+    'http://localhost:5173',
+    "https://royal-bachelor.vercel.app"
+  ],
+  optionsSuccessStatus: 200
+}))
 app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.osztyuf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -30,8 +36,8 @@ const client = new MongoClient(uri, {
 
   const dbConnect = async()=>{
     try{
-        await client.connect()
-        console.log('DB Connected');
+        // await client.connect()
+        // console.log('DB Connected');
 
 
        // daily cost
