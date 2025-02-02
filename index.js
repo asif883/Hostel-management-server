@@ -103,12 +103,56 @@ const client = new MongoClient(uri, {
           const users = await userCollection.find().toArray()
           res.send(users)
       })
+      app.get('/users/:email', async (req , res) =>{
+          const email = req.params.email
+          const query = {email: email}
+          const result = await userCollection.findOne(query)
+          res.send(result)
+      })
+
       app.delete('/delete-user/:id', async(req , res)=>{
         const id = req.params.id;
         const query = {_id : new ObjectId(id)}
         const result =await userCollection.deleteOne(query);
         res.send(result);
       })
+
+      app.patch('/users/admin/:id' , async ( req , res) =>{
+        const id = req.params.id
+        const filter = { _id: new ObjectId(id) }
+        const updateDoc = {
+            $set: {
+                role: "admin"
+            }
+        }
+        const result = await userCollection.updateOne(filter , updateDoc)
+        res.send(result)
+      })
+
+      app.patch('/users/manager/:id' , async ( req , res) =>{
+        const id = req.params.id
+        const filter = { _id: new ObjectId(id) }
+        const updateDoc = {
+            $set: {
+                role: "manager"
+            }
+        }
+        const result = await userCollection.updateOne(filter , updateDoc)
+        res.send(result)
+      })
+
+      app.patch('/users/manager/remove/:id' , async ( req , res) =>{
+        const id = req.params.id
+        const filter = { _id: new ObjectId(id) }
+        const updateDoc = {
+            $set: {
+                role: "member"
+            }
+        }
+        const result = await userCollection.updateOne(filter , updateDoc)
+        res.send(result)
+      })
+  
 
       // daily meal
       app.post('/add-meal', async ( req , res )=>{
@@ -201,7 +245,7 @@ const client = new MongoClient(uri, {
         } catch (error) {
             res.status(500).send({ message: 'Server error', error });
         }
-    });
+      });
     
 
 
